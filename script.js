@@ -1,411 +1,833 @@
-/* =========================================
-   FILE UPLOAD
-========================================= */
+/* =====================================================
+   LEXIGUARD FRONTEND
+   Sample contract + simulated AI analysis
+===================================================== */
 
-const fileInput = document.getElementById("fileInput");
-const fileName = document.getElementById("fileName");
 
-if (fileInput) {
+/* =====================================================
+   SAMPLE FINDINGS
+===================================================== */
 
-    fileInput.addEventListener("change", function () {
+const findings = [
 
-        if (fileInput.files.length > 0) {
+    {
+        id: "LIABILITY_001",
 
-            const file = fileInput.files[0];
+        title: "Liability Cap",
 
-            fileName.textContent =
-                "Selected: " + file.name;
+        category: "LIABILITY",
 
-        }
+        severity: "Critical",
 
+        description:
+            "Vendor liability is completely unlimited.",
+
+        original:
+            "The Vendor shall be liable for all losses, damages and claims arising from the services without limitation.",
+
+        problem:
+            "Unlimited liability can expose the organization to potentially uncapped financial losses.",
+
+        expectation:
+            "Vendor liability should be subject to an agreed monetary cap, normally tied to fees paid during a defined period.",
+
+        corrected:
+            "The Vendor's aggregate liability shall not exceed the total fees paid under this Agreement during the preceding twelve months.",
+
+        confidence:
+            "High"
+    },
+
+
+    {
+        id: "PAYMENT_001",
+
+        title: "Payment Terms",
+
+        category: "PAYMENT",
+
+        severity: "High",
+
+        description:
+            "The contract requires payment within only seven days.",
+
+        original:
+            "Payment shall be made within 7 days of receipt of invoice.",
+
+        problem:
+            "The proposed seven-day payment period is shorter than the organization's standard payment window.",
+
+        expectation:
+            "The preferred payment period is thirty days from receipt of a valid invoice.",
+
+        corrected:
+            "Payment shall be made within 30 days of receipt of a valid invoice.",
+
+        confidence:
+            "High"
+    },
+
+
+    {
+        id: "RENEWAL_001",
+
+        title: "Automatic Renewal",
+
+        category: "RENEWAL",
+
+        severity: "High",
+
+        description:
+            "The agreement automatically renews for another year.",
+
+        original:
+            "This Agreement shall automatically renew for successive one-year periods unless either party provides notice of non-renewal.",
+
+        problem:
+            "Automatic renewal can unintentionally extend the organization's contractual commitment.",
+
+        expectation:
+            "Renewal should require explicit written confirmation from the parties.",
+
+        corrected:
+            "Renewal shall require written confirmation from both parties at least thirty days before expiry.",
+
+        confidence:
+            "High"
+    },
+
+
+    {
+        id: "IP_001",
+
+        title: "Work Product Ownership",
+
+        category: "INTELLECTUAL PROPERTY",
+
+        severity: "Critical",
+
+        description:
+            "The vendor retains ownership of work created for the Company.",
+
+        original:
+            "All intellectual property created by the Vendor shall remain the exclusive property of the Vendor.",
+
+        problem:
+            "The organization may lose ownership or control over work product specifically created under the agreement.",
+
+        expectation:
+            "Work product created specifically for the organization should be assigned to the organization.",
+
+        corrected:
+            "All work product and intellectual property specifically created for the Company under this Agreement shall be owned by the Company upon creation.",
+
+        confidence:
+            "Medium"
+    }
+
+];
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let selectedFinding = null;
+
+let acceptedRedlines = [];
+
+let rejectedRedlines = [];
+
+
+/* =====================================================
+   DOM
+===================================================== */
+
+const analyzeButton =
+    document.getElementById("analyzeButton");
+
+const results =
+    document.getElementById("results");
+
+const loading =
+    document.getElementById("loading");
+
+const findingsList =
+    document.getElementById("findingsList");
+
+const contractViewer =
+    document.getElementById("contractViewer");
+
+
+/* =====================================================
+   ANALYZE BUTTON
+===================================================== */
+
+analyzeButton.addEventListener(
+    "click",
+    function () {
+
+        showLoading();
+
+        /*
+         * This is intentionally simulated for now.
+         *
+         * Later:
+         *
+         * 1. Upload PDF/DOCX to FastAPI
+         * 2. Extract text
+         * 3. Send text to /analyze
+         * 4. Send findings to /ai-review
+         */
+
+        setTimeout(
+            function () {
+
+                hideLoading();
+
+                showResults();
+
+            },
+            1500
+        );
+
+    }
+);
+
+
+/* =====================================================
+   SHOW RESULTS
+===================================================== */
+
+function showResults() {
+
+    results.classList.remove("hidden");
+
+    calculateRisk();
+
+    renderFindings();
+
+    renderContract();
+
+    clearAIReview();
+
+    results.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
     });
 
 }
 
 
-/* =========================================
-   CONTRACT ANALYSIS
-========================================= */
+/* =====================================================
+   RISK CALCULATION
+===================================================== */
 
-const riskItems =
-    document.querySelectorAll(".risk-item");
+function calculateRisk() {
 
-const analysisContent =
-    document.getElementById("analysisContent");
+    let critical = 0;
 
+    let high = 0;
 
-const riskData = {
+    let medium = 0;
 
-    liability: {
+    let low = 0;
 
-        severity: "CRITICAL RISK",
 
-        badge: "critical",
+    findings.forEach(
+        function (finding) {
 
-        title: "Unlimited Liability",
+            const severity =
+                finding.severity.toLowerCase();
 
-        section: "Section 12 · Limitation of Liability",
 
-        confidence: "96% confidence",
+            if (severity === "critical") {
 
-        explanation:
-            "The vendor's liability is unlimited. This creates potentially uncapped financial exposure for the company.",
+                critical++;
 
-        requirement:
-            "Vendor liability must be capped at the total fees paid under the agreement.",
+            }
+            else if (severity === "high") {
 
-        contract:
-            "Unlimited",
+                high++;
 
-        standard:
-            "Fee-based cap",
+            }
+            else if (severity === "medium") {
 
-        original:
-            "shall be unlimited for all claims,",
+                medium++;
 
-        suggested:
-            "shall not exceed the total fees paid under this Agreement,"
+            }
+            else {
 
-    },
+                low++;
 
+            }
 
-    ip: {
+        }
+    );
 
-        severity: "CRITICAL RISK",
 
-        badge: "critical",
+    const score =
+        Math.min(
+            100,
+            critical * 25 +
+            high * 15 +
+            medium * 8 +
+            low * 3
+        );
 
-        title: "IP Ownership",
 
-        section: "Section 18 · Intellectual Property",
+    document.getElementById(
+        "riskScore"
+    ).textContent = score;
 
-        confidence: "94% confidence",
 
-        explanation:
-            "The contract gives the vendor ownership of intellectual property created during the engagement.",
+    document.getElementById(
+        "scoreBar"
+    ).style.width =
+        score + "%";
 
-        requirement:
-            "The company must retain ownership of deliverables created specifically for the company.",
 
-        contract:
-            "Vendor ownership",
+    document.getElementById(
+        "criticalCount"
+    ).textContent =
+        critical;
 
-        standard:
-            "Company ownership",
 
-        original:
-            "shall remain the sole property of Vendor.",
+    document.getElementById(
+        "highCount"
+    ).textContent =
+        high;
 
-        suggested:
-            "shall be owned exclusively by the Company."
 
-    },
+    document.getElementById(
+        "findingCount"
+    ).textContent =
+        findings.length;
 
 
-    payment: {
+    const riskLevel =
+        document.getElementById(
+            "riskLevel"
+        );
 
-        severity: "HIGH RISK",
 
-        badge: "high",
+    let level = "Low";
 
-        title: "Payment Terms",
 
-        section: "Section 7 · Payment Terms",
+    if (critical > 0) {
 
-        confidence: "91% confidence",
+        level = "Critical";
 
-        explanation:
-            "The contract requires payment within 90 days, which exceeds the company's approved 30-day payment period.",
+    }
+    else if (high > 0) {
 
-        requirement:
-            "Payment terms must not exceed thirty (30) days.",
+        level = "High";
 
-        contract:
-            "90 days",
+    }
+    else if (medium > 0) {
 
-        standard:
-            "30 days",
-
-        original:
-            "ninety (90) days",
-
-        suggested:
-            "thirty (30) days"
-
-    },
-
-
-    renewal: {
-
-        severity: "HIGH RISK",
-
-        badge: "high",
-
-        title: "Automatic Renewal",
-
-        section: "Section 9 · Renewal",
-
-        confidence: "89% confidence",
-
-        explanation:
-            "The agreement automatically renews for five years, creating a long-term commitment without an explicit renewal decision.",
-
-        requirement:
-            "Automatic renewal must be limited and require advance notice.",
-
-        contract:
-            "5-year renewal",
-
-        standard:
-            "Controlled renewal",
-
-        original:
-            "five (5) years",
-
-        suggested:
-            "one (1) year with 60 days' notice"
-
-    },
-
-
-    privacy: {
-
-        severity: "MEDIUM RISK",
-
-        badge: "medium",
-
-        title: "Data Protection",
-
-        section: "Section 21 · Data Protection",
-
-        confidence: "86% confidence",
-
-        explanation:
-            "The data protection language only requires commercially reasonable safeguards and does not contain the company's required data-processing obligations.",
-
-        requirement:
-            "Vendor must comply with the company's approved Data Processing Agreement.",
-
-        contract:
-            "Generic safeguards",
-
-        standard:
-            "Approved DPA",
-
-        original:
-            "commercially reasonable measures",
-
-        suggested:
-            "the Company's approved Data Processing Agreement"
+        level = "Medium";
 
     }
 
-};
+
+    riskLevel.textContent =
+        level;
 
 
-/* =========================================
-   DISPLAY SELECTED RISK
-========================================= */
-
-riskItems.forEach(function(item) {
-
-    item.addEventListener("click", function() {
-
-        /* Remove selection */
-
-        riskItems.forEach(function(other) {
-            other.classList.remove("selected");
-        });
-
-        /* Select current */
-
-        item.classList.add("selected");
-
-        /* Get risk */
-
-        const risk =
-            riskData[item.dataset.risk];
-
-        /* Update analysis */
-
-        updateAnalysis(risk);
-
-        /* Scroll to contract clause */
-
-        scrollToClause(item.dataset.risk);
-
-    });
-
-});
+    riskLevel.className =
+        "";
 
 
-function updateAnalysis(risk) {
+    if (level === "Critical") {
 
-    analysisContent.innerHTML = `
+        riskLevel.classList.add(
+            "critical-text"
+        );
 
-        <span class="risk-badge ${risk.badge}">
-            ${risk.severity}
-        </span>
+    }
+    else if (level === "High") {
 
-        <h2>${risk.title}</h2>
+        riskLevel.classList.add(
+            "high-text"
+        );
 
-        <div class="section-number">
-            ${risk.section}
-        </div>
+    }
+    else if (level === "Medium") {
+
+        riskLevel.classList.add(
+            "medium-text"
+        );
+
+    }
+    else {
+
+        riskLevel.classList.add(
+            "low-text"
+        );
+
+    }
+
+}
 
 
-        <div class="analysis-block">
+/* =====================================================
+   RENDER FINDINGS
+===================================================== */
 
-            <h3>Why was this flagged?</h3>
+function renderFindings() {
 
-            <p>
-                ${risk.explanation}
-            </p>
-
-        </div>
+    findingsList.innerHTML = "";
 
 
-        <div class="playbook-rule">
+    findings.forEach(
+        function (finding, index) {
 
-            <div class="rule-icon">
-                ⚖
-            </div>
+            const severity =
+                finding.severity.toLowerCase();
 
-            <div>
 
-                <span>
-                    PLAYBOOK REQUIREMENT
-                </span>
+            const item =
+                document.createElement("div");
+
+
+            item.className =
+                "finding";
+
+
+            item.dataset.index =
+                index;
+
+
+            item.innerHTML = `
+
+                <div class="finding-top">
+
+                    <span
+                        class="risk-dot ${severity}">
+                    </span>
+
+                    <span class="finding-title">
+                        ${escapeHTML(finding.title)}
+                    </span>
+
+                    <span
+                        class="finding-severity ${severity}">
+                        ${finding.severity.toUpperCase()}
+                    </span>
+
+                </div>
 
                 <p>
-                    ${risk.requirement}
+                    ${escapeHTML(finding.description)}
                 </p>
 
-            </div>
-
-        </div>
+            `;
 
 
-        <div class="deviation">
+            item.addEventListener(
+                "click",
+                function () {
 
-            <h3>
-                Deviation detected
-            </h3>
+                    selectFinding(index);
 
-            <div class="deviation-row">
-
-                <span>Contract</span>
-
-                <strong>
-                    ${risk.contract}
-                </strong>
-
-            </div>
-
-            <div class="deviation-row">
-
-                <span>Company Standard</span>
-
-                <strong>
-                    ${risk.standard}
-                </strong>
-
-            </div>
-
-        </div>
+                }
+            );
 
 
-        <div class="suggestion">
+            findingsList.appendChild(item);
 
-            <div class="suggestion-title">
+        }
+    );
 
-                <h3>
-                    Suggested Redline
-                </h3>
-
-                <span>
-                    AI Generated
-                </span>
-
-            </div>
+}
 
 
-            <div class="redline-text">
+/* =====================================================
+   SELECT FINDING
+===================================================== */
 
-                ${risk.title}
+function selectFinding(index) {
 
-                <del>
-                    ${risk.original}
-                </del>
-
-                <ins>
-                    ${risk.suggested}
-                </ins>
-
-            </div>
-
-        </div>
+    selectedFinding =
+        findings[index];
 
 
-        <div class="redline-actions">
+    document
+        .querySelectorAll(".finding")
+        .forEach(
+            function (item) {
 
-            <button
-                id="rejectButton"
-                class="reject-button"
+                item.classList.remove(
+                    "selected"
+                );
+
+            }
+        );
+
+
+    const item =
+        document.querySelector(
+            `.finding[data-index="${index}"]`
+        );
+
+
+    if (item) {
+
+        item.classList.add(
+            "selected"
+        );
+
+    }
+
+
+    showAIReview(
+        selectedFinding
+    );
+
+
+    highlightClause(
+        selectedFinding
+    );
+
+}
+
+
+/* =====================================================
+   RENDER CONTRACT
+===================================================== */
+
+function renderContract() {
+
+    contractViewer.innerHTML = `
+
+        <h3>
+            VENDOR SERVICE AGREEMENT
+        </h3>
+
+        <h4>
+            1. SERVICES
+        </h4>
+
+        <p>
+            The Vendor shall provide software development and
+            maintenance services to the Company according to
+            the requirements agreed between the parties.
+        </p>
+
+
+        <h4>
+            2. LIABILITY
+        </h4>
+
+        <p>
+            The Vendor shall be liable for all losses,
+            damages and claims arising from the services
+            <span
+                class="risky-clause"
+                data-finding="LIABILITY_001"
             >
-                Reject
-            </button>
+                without limitation
+            </span>.
+        </p>
 
-            <button
-                id="acceptButton"
-                class="accept-button"
+
+        <h4>
+            3. PAYMENT
+        </h4>
+
+        <p>
+            Payment shall be made within
+            <span
+                class="risky-clause"
+                data-finding="PAYMENT_001"
             >
-                ✓ Accept Redline
-            </button>
+                7 days
+            </span>
+            of receipt of invoice.
+        </p>
 
-        </div>
+
+        <h4>
+            4. AUTOMATIC RENEWAL
+        </h4>
+
+        <p>
+            This Agreement shall
+            <span
+                class="risky-clause"
+                data-finding="RENEWAL_001"
+            >
+                automatically renew
+            </span>
+            for successive one-year periods unless either
+            party provides notice of non-renewal.
+        </p>
+
+
+        <h4>
+            5. INTELLECTUAL PROPERTY
+        </h4>
+
+        <p>
+            All intellectual property created by the Vendor
+            shall remain the
+            <span
+                class="risky-clause"
+                data-finding="IP_001"
+            >
+                exclusive property of the Vendor
+            </span>.
+        </p>
+
+
+        <h4>
+            6. CONFIDENTIALITY
+        </h4>
+
+        <p>
+            Each party agrees to keep confidential information
+            private and shall not disclose such information
+            to third parties.
+        </p>
+
+
+        <h4>
+            7. DATA PROTECTION
+        </h4>
+
+        <p>
+            The Vendor may process Company data as required
+            to provide the services.
+        </p>
+
+
+        <h4>
+            8. GOVERNING LAW
+        </h4>
+
+        <p>
+            This Agreement shall be governed by applicable law.
+        </p>
+
+
+        <h4>
+            9. TERMINATION
+        </h4>
+
+        <p>
+            Either party may terminate this Agreement with
+            seven days' notice.
+        </p>
+
+
+        <h4>
+            10. AUDIT
+        </h4>
+
+        <p>
+            The Company may request reasonable information
+            from the Vendor regarding performance of the services.
+        </p>
 
     `;
 
 
-    setupRedlineButtons();
+    document
+        .querySelectorAll(".risky-clause")
+        .forEach(
+            function (clause) {
+
+                clause.addEventListener(
+                    "click",
+                    function () {
+
+                        const id =
+                            clause.dataset.finding;
+
+
+                        const index =
+                            findings.findIndex(
+                                function (finding) {
+
+                                    return finding.id === id;
+
+                                }
+                            );
+
+
+                        if (index !== -1) {
+
+                            selectFinding(index);
+
+                        }
+
+                    }
+                );
+
+            }
+        );
 
 }
 
 
-/* =========================================
-   SCROLL TO CONTRACT CLAUSE
-========================================= */
+/* =====================================================
+   AI REVIEW
+===================================================== */
 
-function scrollToClause(risk) {
+function showAIReview(finding) {
 
-    const clauseMap = {
+    document
+        .getElementById("aiEmpty")
+        .classList.add("hidden");
 
-        liability: "liabilityClause",
 
-        ip: "ipClause",
+    document
+        .getElementById("aiReview")
+        .classList.remove("hidden");
 
-        payment: "paymentClause",
 
-        renewal: "renewalClause",
+    document.getElementById(
+        "aiSeverity"
+    ).textContent =
+        finding.severity.toUpperCase();
 
-        privacy: "privacyClause"
 
-    };
+    document.getElementById(
+        "aiCategory"
+    ).textContent =
+        finding.category;
+
+
+    document.getElementById(
+        "aiTitle"
+    ).textContent =
+        finding.title;
+
+
+    document.getElementById(
+        "aiProblem"
+    ).textContent =
+        finding.problem;
+
+
+    document.getElementById(
+        "aiExpectation"
+    ).textContent =
+        finding.expectation;
+
+
+    document.getElementById(
+        "aiClause"
+    ).textContent =
+        finding.corrected;
+
+
+    document.getElementById(
+        "aiConfidence"
+    ).textContent =
+        finding.confidence;
+
+
+    const severity =
+        finding.severity.toLowerCase();
+
+
+    const severityElement =
+        document.getElementById(
+            "aiSeverity"
+        );
+
+
+    severityElement.className = "";
+
+
+    if (severity === "critical") {
+
+        severityElement.style.color =
+            "var(--red)";
+
+    }
+    else if (severity === "high") {
+
+        severityElement.style.color =
+            "var(--orange)";
+
+    }
+    else {
+
+        severityElement.style.color =
+            "var(--yellow)";
+
+    }
+
+
+    document.getElementById(
+        "decisionMessage"
+    ).textContent = "";
+
+
+    document.getElementById(
+        "decisionMessage"
+    ).className =
+        "decision-message";
+
+}
+
+
+/* =====================================================
+   CLEAR AI
+===================================================== */
+
+function clearAIReview() {
+
+    document
+        .getElementById("aiEmpty")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("aiReview")
+        .classList.add("hidden");
+
+}
+
+
+/* =====================================================
+   HIGHLIGHT CLAUSE
+===================================================== */
+
+function highlightClause(finding) {
+
+    document
+        .querySelectorAll(".risky-clause")
+        .forEach(
+            function (clause) {
+
+                clause.classList.remove(
+                    "selected-clause"
+                );
+
+            }
+        );
 
 
     const clause =
-        document.getElementById(clauseMap[risk]);
+        document.querySelector(
+            `.risky-clause[data-finding="${finding.id}"]`
+        );
 
 
     if (clause) {
 
+        clause.classList.add(
+            "selected-clause"
+        );
+
+
         clause.scrollIntoView({
-
             behavior: "smooth",
-
             block: "center"
-
         });
 
     }
@@ -413,53 +835,315 @@ function scrollToClause(risk) {
 }
 
 
-/* =========================================
-   REDLINE BUTTONS
-========================================= */
+/* =====================================================
+   ACCEPT REDLINE
+===================================================== */
 
-function setupRedlineButtons() {
+document.getElementById(
+    "acceptButton"
+).addEventListener(
+    "click",
+    function () {
 
-    const acceptButton =
-        document.getElementById("acceptButton");
+        if (!selectedFinding) {
 
-    const rejectButton =
-        document.getElementById("rejectButton");
+            return;
+
+        }
 
 
-    if (acceptButton) {
+        const clause =
+            document.querySelector(
+                `.risky-clause[data-finding="${selectedFinding.id}"]`
+            );
 
-        acceptButton.addEventListener(
-            "click",
-            function() {
 
-                acceptButton.textContent =
-                    "✓ Redline Accepted";
+        if (!clause) {
 
-                acceptButton.style.background =
-                    "#3d9763";
+            showDecision(
+                "This redline has already been applied.",
+                "accepted"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * THIS IS THE IMPORTANT PART.
+         *
+         * The original risky text is actually
+         * replaced by the suggested clause.
+         */
+
+        clause.textContent =
+            selectedFinding.corrected;
+
+
+        clause.classList.remove(
+            "risky-clause",
+            "selected-clause"
+        );
+
+
+        clause.classList.add(
+            "accepted-clause"
+        );
+
+
+        clause.removeAttribute(
+            "data-finding"
+        );
+
+
+        acceptedRedlines.push(
+            selectedFinding.id
+        );
+
+
+        showDecision(
+            "✓ Redline accepted by human reviewer.",
+            "accepted"
+        );
+
+    }
+);
+
+
+/* =====================================================
+   REJECT REDLINE
+===================================================== */
+
+document.getElementById(
+    "rejectButton"
+).addEventListener(
+    "click",
+    function () {
+
+        if (!selectedFinding) {
+
+            return;
+
+        }
+
+
+        rejectedRedlines.push(
+            selectedFinding.id
+        );
+
+
+        showDecision(
+            "Redline rejected. Original clause retained.",
+            "rejected"
+        );
+
+    }
+);
+
+
+/* =====================================================
+   DECISION MESSAGE
+===================================================== */
+
+function showDecision(
+    message,
+    type
+) {
+
+    const element =
+        document.getElementById(
+            "decisionMessage"
+        );
+
+
+    element.textContent =
+        message;
+
+
+    element.className =
+        "decision-message " +
+        type;
+
+}
+
+
+/* =====================================================
+   READ ALOUD
+===================================================== */
+
+document.getElementById(
+    "readButton"
+).addEventListener(
+    "click",
+    function () {
+
+        if (
+            !("speechSynthesis" in window)
+        ) {
+
+            alert(
+                "Your browser does not support read aloud."
+            );
+
+            return;
+
+        }
+
+
+        speechSynthesis.cancel();
+
+
+        const text =
+            document.getElementById(
+                "contractViewer"
+            ).innerText;
+
+
+        const speech =
+            new SpeechSynthesisUtterance(
+                text
+            );
+
+
+        const language =
+            document.getElementById(
+                "languageSelect"
+            ).value;
+
+
+        if (language === "ta") {
+
+            speech.lang = "ta-IN";
+
+        }
+        else if (language === "hi") {
+
+            speech.lang = "hi-IN";
+
+        }
+        else if (language === "te") {
+
+            speech.lang = "te-IN";
+
+        }
+        else {
+
+            speech.lang = "en-IN";
+
+        }
+
+
+        speech.rate = 0.9;
+
+
+        speechSynthesis.speak(
+            speech
+        );
+
+    }
+);
+
+
+/* =====================================================
+   ADD FILE
+===================================================== */
+
+document.getElementById(
+    "addFileButton"
+).addEventListener(
+    "click",
+    function () {
+
+        /*
+         * Placeholder for the future upload system.
+         */
+
+        alert(
+            "File upload will be connected to the LexiGuard backend soon."
+        );
+
+    }
+);
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+document
+    .querySelectorAll(".nav-item")
+    .forEach(
+        function (button) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    const section =
+                        button.dataset.section;
+
+
+                    switchSection(
+                        section
+                    );
+
+
+                    document
+                        .querySelectorAll(".nav-item")
+                        .forEach(
+                            function (item) {
+
+                                item.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                    button.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+/* =====================================================
+   SWITCH SECTION
+===================================================== */
+
+function switchSection(
+    section
+) {
+
+    document
+        .querySelectorAll(".page-section")
+        .forEach(
+            function (page) {
+
+                page.classList.remove(
+                    "active"
+                );
 
             }
         );
 
-    }
+
+    const target =
+        document.getElementById(
+            section + "Section"
+        );
 
 
-    if (rejectButton) {
+    if (target) {
 
-        rejectButton.addEventListener(
-            "click",
-            function() {
-
-                rejectButton.textContent =
-                    "Redline Rejected";
-
-                rejectButton.style.color =
-                    "#c74e4e";
-
-                rejectButton.style.borderColor =
-                    "#e3b1b1";
-
-            }
+        target.classList.add(
+            "active"
         );
 
     }
@@ -467,4 +1151,82 @@ function setupRedlineButtons() {
 }
 
 
-setupRedlineButtons();
+/* =====================================================
+   LANGUAGE
+===================================================== */
+
+document.getElementById(
+    "languageSelect"
+).addEventListener(
+    "change",
+    function () {
+
+        /*
+         * Interface translation can be connected later.
+         */
+
+        console.log(
+            "Selected language:",
+            this.value
+        );
+
+    }
+);
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+function showLoading() {
+
+    loading.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+function hideLoading() {
+
+    loading.classList.add(
+        "hidden"
+    );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(value) {
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
