@@ -1,735 +1,987 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>LexiGuard - Contract Risk Assistant</title>
+    <title>LexiGuard | Contract Risk Assistant</title>
 
-    <style>
+    <link rel="stylesheet" href="style.css">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-        body {
-            background: #f5f5f8;
-            color: #222;
-        }
-
-        /* SIDEBAR */
-
-        .sidebar {
-            position: fixed;
-            width: 220px;
-            height: 100vh;
-            background: #15151c;
-            color: white;
-            padding: 25px 18px;
-        }
-
-        .logo {
-            font-size: 23px;
-            font-weight: bold;
-            margin-bottom: 40px;
-        }
-
-        .logo span {
-            color: #9b7cff;
-        }
-
-        .nav-item {
-            padding: 13px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            color: #aaa;
-            cursor: pointer;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            background: #292934;
-            color: white;
-        }
-
-        .secure {
-            position: absolute;
-            bottom: 25px;
-            color: #777;
-            font-size: 12px;
-        }
-
-        /* MAIN */
-
-        .main {
-            margin-left: 220px;
-            padding: 35px;
-        }
-
-        .header h1 {
-            font-size: 30px;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            color: #777;
-            margin-bottom: 35px;
-        }
-
-        /* UPLOAD */
-
-        .upload-container {
-            max-width: 850px;
-            margin: auto;
-        }
-
-        .upload-box {
-            background: white;
-            border: 2px dashed #cfc9f7;
-            border-radius: 15px;
-            padding: 60px 30px;
-            text-align: center;
-            transition: 0.2s;
-        }
-
-        .upload-box.dragover {
-            background: #f1efff;
-            border-color: #7c5cff;
-        }
-
-        .upload-icon {
-            font-size: 50px;
-            margin-bottom: 20px;
-        }
-
-        .upload-box h2 {
-            margin-bottom: 10px;
-        }
-
-        .upload-box p {
-            color: #777;
-            margin-bottom: 25px;
-        }
-
-        .choose-btn {
-            background: #7c5cff;
-            color: white;
-            padding: 13px 25px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .choose-btn:hover {
-            background: #6849e8;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        /* FILE */
-
-        .file-preview {
-            display: none;
-            background: white;
-            margin-top: 20px;
-            padding: 18px;
-            border-radius: 12px;
-            border: 1px solid #ddd;
-        }
-
-        .file-info {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .file-name {
-            font-weight: bold;
-        }
-
-        .file-type {
-            color: #777;
-            font-size: 13px;
-            margin-top: 5px;
-        }
-
-        .remove-btn {
-            border: none;
-            background: #ffe5e5;
-            color: #c52222;
-            padding: 8px 12px;
-            border-radius: 7px;
-            cursor: pointer;
-        }
-
-        /* ANALYZE */
-
-        .analyze-container {
-            text-align: center;
-            margin-top: 25px;
-        }
-
-        .analyze-btn {
-            display: none;
-            background: #222;
-            color: white;
-            border: none;
-            padding: 14px 35px;
-            border-radius: 9px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .analyze-btn:hover {
-            background: #000;
-        }
-
-        /* LOADING */
-
-        .loading {
-            display: none;
-            margin-top: 25px;
-            text-align: center;
-        }
-
-        .spinner {
-            width: 35px;
-            height: 35px;
-            border: 4px solid #ddd;
-            border-top: 4px solid #7c5cff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: auto;
-        }
-
-        @keyframes spin {
-
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-
-        }
-
-        .loading p {
-            margin-top: 12px;
-            color: #777;
-        }
-
-        /* FEATURES */
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 50px;
-        }
-
-        .feature {
-            background: white;
-            padding: 22px;
-            border-radius: 12px;
-            border: 1px solid #eee;
-        }
-
-        .feature h3 {
-            margin-bottom: 8px;
-        }
-
-        .feature p {
-            color: #777;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        /* MOBILE */
-
-        @media(max-width: 750px) {
-
-            .sidebar {
-                display: none;
-            }
-
-            .main {
-                margin-left: 0;
-                padding: 20px;
-            }
-
-            .features {
-                grid-template-columns: 1fr;
-            }
-
-        }
-
-    </style>
-
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
 
+    <!-- SIDEBAR -->
 
-<!-- SIDEBAR -->
+    <aside class="sidebar">
 
-<div class="sidebar">
+        <div class="brand">
 
-    <div class="logo">
-        Lexi<span>Guard</span>
-    </div>
-
-    <div class="nav-item active">
-        Dashboard
-    </div>
-
-    <div class="nav-item">
-        Contracts
-    </div>
-
-    <div class="nav-item">
-        Legal Playbook
-    </div>
-
-    <div class="nav-item">
-        Settings
-    </div>
-
-    <div class="secure">
-        🔒 Secure Workspace
-    </div>
-
-</div>
-
-
-<!-- MAIN -->
-
-<div class="main">
-
-    <div class="header">
-
-        <h1>
-            Contract Risk Assistant
-        </h1>
-
-        <p>
-            Upload a vendor contract to identify risks,
-            deviations and recommended redlines.
-        </p>
-
-    </div>
-
-
-    <div class="upload-container">
-
-
-        <!-- UPLOAD -->
-
-        <div
-            class="upload-box"
-            id="uploadBox"
-        >
-
-            <div class="upload-icon">
-                📄
+            <div class="brand-logo">
+                L
             </div>
 
-            <h2>
-                Upload a Contract
-            </h2>
-
-            <p>
-                Drag and drop a PDF or DOCX file here
-                or choose one from your computer.
-            </p>
-
-            <button
-                class="choose-btn"
-                onclick="document.getElementById('fileInput').click()"
-            >
-                Choose Contract
-            </button>
-
-            <input
-                type="file"
-                id="fileInput"
-                accept=".pdf,.docx"
-            >
+            <div>
+                <h2>LexiGuard</h2>
+                <p>Contract Intelligence</p>
+            </div>
 
         </div>
 
 
-        <!-- FILE PREVIEW -->
+        <nav class="navigation">
 
-        <div
-            class="file-preview"
-            id="filePreview"
+            <button class="nav-item active" data-section="review">
+                <span>⌂</span>
+                Review
+            </button>
+
+            <button class="nav-item" data-section="playbook">
+                <span>◈</span>
+                Legal Playbook
+            </button>
+
+            <button class="nav-item" data-section="history">
+                <span>◷</span>
+                Review History
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="human-review">
+
+                <div class="check-circle">
+                    ✓
+                </div>
+
+                <div>
+                    <strong>Human Review</strong>
+                    <p>AI never changes contracts automatically.</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <p class="eyebrow">
+                    ENTERPRISE LEGAL AI
+                </p>
+
+                <h1>
+                    Contract Review Workspace
+                </h1>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <select id="languageSelect">
+
+                    <option value="en">
+                        English
+                    </option>
+
+                    <option value="ta">
+                        தமிழ்
+                    </option>
+
+                    <option value="hi">
+                        हिन्दी
+                    </option>
+
+                    <option value="te">
+                        తెలుగు
+                    </option>
+
+                </select>
+
+
+                <div class="avatar">
+                    SV
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             REVIEW PAGE
+        ====================================================== -->
+
+        <section
+            id="reviewSection"
+            class="page-section active"
         >
 
-            <div class="file-info">
+            <div class="page-intro">
 
                 <div>
 
-                    <div
-                        class="file-name"
-                        id="fileName"
-                    ></div>
+                    <p class="eyebrow">
+                        CONTRACT ANALYSIS
+                    </p>
 
-                    <div
-                        class="file-type"
-                        id="fileType"
-                    ></div>
+                    <h2>
+                        Review a vendor contract
+                    </h2>
+
+                    <p>
+                        Compare contract clauses against your
+                        organization's legal playbook and review
+                        AI-generated redlines.
+                    </p>
 
                 </div>
 
+
+                <!-- ADD FILE -->
+
                 <button
-                    class="remove-btn"
-                    onclick="removeFile()"
+                    id="addFileButton"
+                    class="secondary-button"
                 >
-                    Remove
+                    ＋ Add File
                 </button>
 
             </div>
 
-        </div>
+
+            <!-- SAMPLE CONTRACT CARD -->
+
+            <section class="sample-contract-card">
+
+                <div class="document-top">
+
+                    <div class="document-info">
+
+                        <div class="document-icon">
+                            PDF
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Vendor_Service_Agreement.pdf
+                            </strong>
+
+                            <span>
+                                Sample contract • Ready for analysis
+                            </span>
+
+                        </div>
+
+                    </div>
 
 
-        <!-- ANALYZE -->
+                    <span class="sample-label">
+                        SAMPLE
+                    </span>
 
-        <div class="analyze-container">
+                </div>
 
-            <button
-                class="analyze-btn"
-                id="analyzeBtn"
-                onclick="analyzeContract()"
+
+                <!-- CONTRACT PREVIEW -->
+
+                <div
+                    id="sampleContract"
+                    class="sample-contract"
+                >
+
+                    <h3>
+                        VENDOR SERVICE AGREEMENT
+                    </h3>
+
+
+                    <p class="contract-meta">
+                        Agreement between Acme Technologies
+                        and Example Vendor
+                    </p>
+
+
+                    <h4>
+                        1. SERVICES
+                    </h4>
+
+                    <p>
+                        The Vendor shall provide software development
+                        and maintenance services to the Company according
+                        to the requirements agreed between the parties.
+                    </p>
+
+
+                    <h4>
+                        2. LIABILITY
+                    </h4>
+
+                    <p>
+                        The Vendor shall be liable for all losses,
+                        damages and claims arising from the services
+                        <span class="preview-risk">
+                            without limitation
+                        </span>.
+                    </p>
+
+
+                    <h4>
+                        3. PAYMENT
+                    </h4>
+
+                    <p>
+                        Payment shall be made within
+                        <span class="preview-risk">
+                            7 days
+                        </span>
+                        of receipt of invoice.
+                    </p>
+
+
+                    <h4>
+                        4. AUTOMATIC RENEWAL
+                    </h4>
+
+                    <p>
+                        This Agreement shall
+                        <span class="preview-risk">
+                            automatically renew
+                        </span>
+                        for successive one-year periods unless either
+                        party provides notice of non-renewal.
+                    </p>
+
+
+                    <h4>
+                        5. INTELLECTUAL PROPERTY
+                    </h4>
+
+                    <p>
+                        All intellectual property created by the Vendor
+                        shall remain the
+                        <span class="preview-risk">
+                            exclusive property of the Vendor
+                        </span>.
+                    </p>
+
+
+                    <h4>
+                        6. CONFIDENTIALITY
+                    </h4>
+
+                    <p>
+                        Each party agrees to keep confidential information
+                        private and shall not disclose such information
+                        to third parties.
+                    </p>
+
+
+                    <h4>
+                        7. DATA PROTECTION
+                    </h4>
+
+                    <p>
+                        The Vendor may process Company data as required
+                        to provide the services.
+                    </p>
+
+
+                    <h4>
+                        8. GOVERNING LAW
+                    </h4>
+
+                    <p>
+                        This Agreement shall be governed by applicable law.
+                    </p>
+
+
+                    <h4>
+                        9. TERMINATION
+                    </h4>
+
+                    <p>
+                        Either party may terminate this Agreement with
+                        seven days' notice.
+                    </p>
+
+
+                    <h4>
+                        10. AUDIT
+                    </h4>
+
+                    <p>
+                        The Company may request reasonable information
+                        from the Vendor regarding performance of the services.
+                    </p>
+
+                </div>
+
+
+                <!-- ANALYZE -->
+
+                <div class="analysis-action">
+
+                    <div>
+
+                        <strong>
+                            Ready to analyze
+                        </strong>
+
+                        <p>
+                            LexiGuard will compare this contract
+                            against the corporate playbook.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="analyzeButton"
+                        class="primary-button"
+                    >
+                        ✦ Analyze Contract
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 RESULTS
+            ================================================== -->
+
+            <div
+                id="results"
+                class="results hidden"
             >
-                🔍 Analyze Contract
-            </button>
 
-        </div>
+                <!-- SUMMARY -->
+
+                <div class="results-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            ANALYSIS COMPLETE
+                        </p>
+
+                        <h2>
+                            Contract risk assessment
+                        </h2>
+
+                    </div>
+
+                    <span class="analysis-complete">
+                        ✓ Analysis complete
+                    </span>
+
+                </div>
 
 
-        <!-- LOADING -->
+                <!-- SUMMARY CARDS -->
 
-        <div
-            class="loading"
-            id="loading"
+                <div class="summary-grid">
+
+                    <div class="summary-card score">
+
+                        <span>
+                            RISK SCORE
+                        </span>
+
+                        <div class="score-number">
+                            <strong id="riskScore">
+                                72
+                            </strong>
+
+                            <small>
+                                /100
+                            </small>
+                        </div>
+
+                        <div class="score-track">
+                            <div id="scoreBar"></div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-card">
+
+                        <span>
+                            RISK LEVEL
+                        </span>
+
+                        <strong
+                            id="riskLevel"
+                            class="critical-text"
+                        >
+                            Critical
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-card">
+
+                        <span>
+                            CRITICAL
+                        </span>
+
+                        <strong id="criticalCount">
+                            2
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-card">
+
+                        <span>
+                            HIGH RISK
+                        </span>
+
+                        <strong id="highCount">
+                            2
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-card">
+
+                        <span>
+                            FINDINGS
+                        </span>
+
+                        <strong id="findingCount">
+                            4
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- THREE COLUMN WORKSPACE -->
+
+                <div class="workspace">
+
+
+                    <!-- FINDINGS -->
+
+                    <aside class="findings">
+
+                        <div class="panel-heading">
+
+                            <div>
+
+                                <span class="eyebrow">
+                                    FINDINGS
+                                </span>
+
+                                <h3>
+                                    Risk deviations
+                                </h3>
+
+                            </div>
+
+                        </div>
+
+
+                        <div id="findingsList">
+
+                            <!-- JavaScript -->
+
+                        </div>
+
+                    </aside>
+
+
+                    <!-- CONTRACT -->
+
+                    <section class="contract-panel">
+
+                        <div class="panel-heading">
+
+                            <div>
+
+                                <span class="eyebrow">
+                                    CONTRACT
+                                </span>
+
+                                <h3>
+                                    Document
+                                </h3>
+
+                            </div>
+
+
+                            <button
+                                id="readButton"
+                                class="small-button"
+                            >
+                                🔊 Read aloud
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            id="contractViewer"
+                            class="contract-viewer"
+                        >
+
+                            <!-- JavaScript -->
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- AI -->
+
+                    <aside class="ai-panel">
+
+                        <div class="ai-panel-header">
+
+                            <div class="ai-logo">
+                                ✦
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    AI Legal Review
+                                </h3>
+
+                                <span>
+                                    Human approval required
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- EMPTY -->
+
+                        <div
+                            id="aiEmpty"
+                            class="ai-empty"
+                        >
+
+                            <div class="empty-icon">
+                                ◈
+                            </div>
+
+                            <h3>
+                                Select a finding
+                            </h3>
+
+                            <p>
+                                Select a risk from the left to see
+                                why it was flagged and review the
+                                suggested redline.
+                            </p>
+
+                        </div>
+
+
+                        <!-- REVIEW -->
+
+                        <div
+                            id="aiReview"
+                            class="ai-review hidden"
+                        >
+
+                            <div class="ai-risk-row">
+
+                                <span id="aiSeverity">
+                                    CRITICAL
+                                </span>
+
+                                <span id="aiCategory">
+                                    LIABILITY
+                                </span>
+
+                            </div>
+
+
+                            <h2 id="aiTitle">
+                                Liability Cap
+                            </h2>
+
+
+                            <div class="review-section">
+
+                                <span class="section-label">
+                                    WHY IT'S RISKY
+                                </span>
+
+                                <p id="aiProblem">
+                                    Unlimited liability exposes the
+                                    organization to potentially uncapped
+                                    financial losses.
+                                </p>
+
+                            </div>
+
+
+                            <div class="review-section">
+
+                                <span class="section-label">
+                                    PLAYBOOK EXPECTATION
+                                </span>
+
+                                <p id="aiExpectation">
+                                    Liability should be capped at an
+                                    agreed amount.
+                                </p>
+
+                            </div>
+
+
+                            <!-- REDLINE -->
+
+                            <div class="redline-container">
+
+                                <div class="redline-header">
+
+                                    <span>
+                                        SUGGESTED REDLINE
+                                    </span>
+
+                                    <span>
+                                        AI GENERATED
+                                    </span>
+
+                                </div>
+
+
+                                <div
+                                    id="aiClause"
+                                    class="green-clause"
+                                >
+
+                                    The Vendor's aggregate liability
+                                    shall not exceed the total fees
+                                    paid under this Agreement during
+                                    the preceding twelve months.
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="confidence-row">
+
+                                <span>
+                                    AI confidence
+                                </span>
+
+                                <strong id="aiConfidence">
+                                    High
+                                </strong>
+
+                            </div>
+
+
+                            <!-- ACTIONS -->
+
+                            <div class="redline-actions">
+
+                                <button
+                                    id="rejectButton"
+                                    class="reject-button"
+                                >
+                                    Reject
+                                </button>
+
+                                <button
+                                    id="acceptButton"
+                                    class="accept-button"
+                                >
+                                    ✓ Accept Redline
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                id="decisionMessage"
+                                class="decision-message"
+                            ></div>
+
+                        </div>
+
+                    </aside>
+
+                </div>
+
+
+                <!-- DISCLAIMER -->
+
+                <div class="disclaimer">
+
+                    <strong>Human review required.</strong>
+
+                    LexiGuard provides AI-assisted contract analysis
+                    and suggested language. AI suggestions should be
+                    reviewed and approved by a qualified human reviewer
+                    before being incorporated into a contract.
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             PLAYBOOK PAGE
+        ====================================================== -->
+
+        <section
+            id="playbookSection"
+            class="page-section"
         >
+
+            <div class="page-heading">
+
+                <p class="eyebrow">
+                    CORPORATE POLICY
+                </p>
+
+                <h2>
+                    Legal Playbook
+                </h2>
+
+                <p>
+                    Standards used by LexiGuard when reviewing contracts.
+                </p>
+
+            </div>
+
+
+            <div class="playbook-grid">
+
+                <article class="playbook-card critical">
+
+                    <span>CRITICAL</span>
+
+                    <h3>
+                        Liability Cap
+                    </h3>
+
+                    <p>
+                        Vendor liability should be limited to an
+                        agreed monetary cap.
+                    </p>
+
+                </article>
+
+
+                <article class="playbook-card critical">
+
+                    <span>CRITICAL</span>
+
+                    <h3>
+                        Intellectual Property
+                    </h3>
+
+                    <p>
+                        Work product created specifically for the
+                        organization should belong to the organization.
+                    </p>
+
+                </article>
+
+
+                <article class="playbook-card high">
+
+                    <span>HIGH</span>
+
+                    <h3>
+                        Payment Terms
+                    </h3>
+
+                    <p>
+                        Standard payment terms should generally
+                        provide thirty days from valid invoice.
+                    </p>
+
+                </article>
+
+
+                <article class="playbook-card high">
+
+                    <span>HIGH</span>
+
+                    <h3>
+                        Automatic Renewal
+                    </h3>
+
+                    <p>
+                        Renewal should require appropriate notice
+                        or explicit written confirmation.
+                    </p>
+
+                </article>
+
+
+                <article class="playbook-card medium">
+
+                    <span>MEDIUM</span>
+
+                    <h3>
+                        Termination
+                    </h3>
+
+                    <p>
+                        The organization should retain reasonable
+                        termination rights.
+                    </p>
+
+                </article>
+
+
+                <article class="playbook-card medium">
+
+                    <span>MEDIUM</span>
+
+                    <h3>
+                        Governing Law
+                    </h3>
+
+                    <p>
+                        Contracts should specify an approved
+                        governing jurisdiction.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             HISTORY PAGE
+        ====================================================== -->
+
+        <section
+            id="historySection"
+            class="page-section"
+        >
+
+            <div class="page-heading">
+
+                <p class="eyebrow">
+                    AUDIT TRAIL
+                </p>
+
+                <h2>
+                    Review History
+                </h2>
+
+                <p>
+                    Previous contract reviews and reviewer decisions.
+                </p>
+
+            </div>
+
+
+            <div class="history-card">
+
+                <div class="history-item">
+
+                    <div class="history-document">
+                        <div class="document-icon small">
+                            PDF
+                        </div>
+
+                        <div>
+                            <strong>
+                                Vendor_Service_Agreement.pdf
+                            </strong>
+
+                            <span>
+                                Sample review
+                            </span>
+                        </div>
+                    </div>
+
+                    <span class="history-risk critical">
+                        Critical
+                    </span>
+
+                    <span>
+                        4 findings
+                    </span>
+
+                    <span class="history-status">
+                        Demo
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- LOADING -->
+
+    <div
+        id="loading"
+        class="loading hidden"
+    >
+
+        <div class="loading-box">
 
             <div class="spinner"></div>
 
+            <h3>
+                Analyzing contract
+            </h3>
+
             <p>
-                Preparing contract analysis...
+                Comparing clauses against the legal playbook...
             </p>
-
-        </div>
-
-
-        <!-- FEATURES -->
-
-        <div class="features">
-
-            <div class="feature">
-
-                <h3>
-                    ⚠️ Risk Detection
-                </h3>
-
-                <p>
-                    Identify clauses that deviate
-                    from your organization's standards.
-                </p>
-
-            </div>
-
-
-            <div class="feature">
-
-                <h3>
-                    📚 Playbook Comparison
-                </h3>
-
-                <p>
-                    Compare vendor terms against
-                    your corporate legal playbook.
-                </p>
-
-            </div>
-
-
-            <div class="feature">
-
-                <h3>
-                    ✏️ AI Redlining
-                </h3>
-
-                <p>
-                    Generate alternative clauses
-                    and review suggested changes.
-                </p>
-
-            </div>
 
         </div>
 
     </div>
 
-</div>
 
-
-<script>
-
-    let selectedFile = null;
-
-
-    /*
-        FILE SELECTED
-    */
-
-    document
-        .getElementById("fileInput")
-        .addEventListener("change", function(event) {
-
-            const file = event.target.files[0];
-
-            if (file) {
-
-                handleFile(file);
-
-            }
-
-        });
-
-
-    /*
-        HANDLE FILE
-    */
-
-    function handleFile(file) {
-
-        const extension =
-            file.name.split(".").pop().toLowerCase();
-
-
-        if (
-            extension !== "pdf" &&
-            extension !== "docx"
-        ) {
-
-            alert(
-                "Please upload a PDF or DOCX file."
-            );
-
-            return;
-
-        }
-
-
-        selectedFile = file;
-
-
-        document
-            .getElementById("fileName")
-            .textContent = file.name;
-
-
-        document
-            .getElementById("fileType")
-            .textContent =
-                extension.toUpperCase() +
-                " • " +
-                formatFileSize(file.size);
-
-
-        document
-            .getElementById("filePreview")
-            .style.display = "block";
-
-
-        document
-            .getElementById("analyzeBtn")
-            .style.display = "inline-block";
-
-    }
-
-
-    /*
-        FILE SIZE
-    */
-
-    function formatFileSize(bytes) {
-
-        if (bytes < 1024) {
-
-            return bytes + " bytes";
-
-        }
-
-        if (bytes < 1024 * 1024) {
-
-            return (
-                (bytes / 1024).toFixed(1)
-                + " KB"
-            );
-
-        }
-
-        return (
-            (bytes / (1024 * 1024)).toFixed(1)
-            + " MB"
-        );
-
-    }
-
-
-    /*
-        REMOVE FILE
-    */
-
-    function removeFile() {
-
-        selectedFile = null;
-
-
-        document
-            .getElementById("fileInput")
-            .value = "";
-
-
-        document
-            .getElementById("filePreview")
-            .style.display = "none";
-
-
-        document
-            .getElementById("analyzeBtn")
-            .style.display = "none";
-
-    }
-
-
-    /*
-        ANALYZE
-    */
-
-    function analyzeContract() {
-
-        if (!selectedFile) {
-
-            alert(
-                "Please choose a contract first."
-            );
-
-            return;
-
-        }
-
-
-        document
-            .getElementById("analyzeBtn")
-            .style.display = "none";
-
-
-        document
-            .getElementById("loading")
-            .style.display = "block";
-
-
-        /*
-            Save filename so analysis.html
-            can use it later.
-        */
-
-        localStorage.setItem(
-            "contractFileName",
-            selectedFile.name
-        );
-
-
-        /*
-            This is currently a simulated
-            analysis delay.
-
-            Later this will call our
-            Python AI backend.
-        */
-
-        setTimeout(function() {
-
-            window.location.href =
-                "analysis.html";
-
-        }, 2000);
-
-    }
-
-
-    /*
-        DRAG & DROP
-    */
-
-    const uploadBox =
-        document.getElementById("uploadBox");
-
-
-    uploadBox.addEventListener(
-        "dragover",
-        function(event) {
-
-            event.preventDefault();
-
-            uploadBox.classList.add(
-                "dragover"
-            );
-
-        }
-    );
-
-
-    uploadBox.addEventListener(
-        "dragleave",
-        function() {
-
-            uploadBox.classList.remove(
-                "dragover"
-            );
-
-        }
-    );
-
-
-    uploadBox.addEventListener(
-        "drop",
-        function(event) {
-
-            event.preventDefault();
-
-            uploadBox.classList.remove(
-                "dragover"
-            );
-
-
-            const file =
-                event.dataTransfer.files[0];
-
-
-            if (file) {
-
-                handleFile(file);
-
-            }
-
-        }
-    );
-
-</script>
+    <script src="script.js"></script>
 
 </body>
+
 </html>
